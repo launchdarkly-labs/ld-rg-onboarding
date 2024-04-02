@@ -1,5 +1,6 @@
 "use client";
 
+// @ts-ignore
 import { use } from "react";
 import { asyncWithLDProvider } from "launchdarkly-react-client-sdk";
 
@@ -10,7 +11,7 @@ export default function AsyncLDProvider({
 }) {
   const LDDynaProvider = use(
     asyncWithLDProvider({
-      clientSideID: process.env.NEXT_PUBLIC_LD_CLIENT_KEY || '',
+      clientSideID: process.env.NEXT_PUBLIC_LD_CLIENT_SDK_KEY || '',
       reactOptions: {
         useCamelCaseFlagKeys: false
       },

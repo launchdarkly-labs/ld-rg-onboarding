@@ -1,4 +1,8 @@
 "use client";
+import QuickLinksSheet from "@/components/infomenu";
+import MetricInfo from "@/components/metricinfo";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
@@ -10,16 +14,25 @@ export default function Home() {
   const callApi = async () => {
     while (isRunningRef.current === true) {
       try {
-        const data = await fetch("/api");
-        console.log(data.json());
+        const response = await fetch("/api");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log(data);
         setCounter((prevCounter) => prevCounter + 1);
         console.log(counter);
         console.log(speed);
         await new Promise((resolve) => setTimeout(resolve, speed));
-      } catch {
-        console.log("error");
+      } catch (error) {
+        console.error("An error occurred:", error);
       }
     }
+  };
+  const stopRun = async () => {
+    isRunningRef.current = false;
+    setIsRunning(false);
+    setCounter(1);
   };
 
   return (
@@ -29,46 +42,60 @@ export default function Home() {
           <h1 className="text-8xl text-white font-bold font-audimat">
             Hello From LaunchDarkly!
           </h1>
-          <p className="text-3xl font-audimat">
+          <p className="text-3xl font-audimat ldgradient">
             Welcome to Release Guardian Onboarding
           </p>
           <div className="space-x-2">
-          {isRunning ? (
-            <button
-              onClick={() => {
-                isRunningRef.current = false;
-                setIsRunning(false); // Add this line
-                setCounter(1);
-              }}
-              className="bg-green-800 font-audimat py-2 px-4 rounded-md"
-            >
-              Cancel Chaos
-            </button>
-          ) : (
-            <button
-              onClick={async () => {
-                isRunningRef.current = true;
-                setIsRunning(true); // Add this line
-                callApi();
-              }}
-              className="bg-blue-800 font-audimat py-2 px-4 rounded-md"
-            >
-              <p className="font-audimat">Begin Run</p>
-            </button>
-          )}
-          {isRunning === true && (
-            <button
-              onClick={() => {
-                setSpeed(200);
-                callApi();
-              }}
-              className="bg-red-800 font-audimat py-2 px-4 rounded-md"
-            >
-              Introduce Chaos
-            </button>
-          )}
+            {isRunning ? (
+              <Button
+                size="lg"
+                onClick={() => {
+                  stopRun();
+                }}
+                className="bg-ldred font-audimat"
+              >
+                <p className="font-audimat text-2xl">Cancel Run</p>
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                onClick={async () => {
+                  isRunningRef.current = true;
+                  setIsRunning(true); // Add this line
+                  callApi();
+                }}
+                className="font-audimat bg-ldsiteblue hover:bg-ldsitehover"
+              >
+                <p className="font-audimat text-2xl">Begin Run</p>
+              </Button>
+            )}
+            {isRunning === true && (
+              <Button
+                size="lg"
+                onClick={async () => {
+                  await stopRun();
+                  setSpeed(200);
+                  isRunningRef.current = true;
+                  setIsRunning(true);
+                  callApi();
+                }}
+                className="bg-ldsiteblue hover:bg-ldsitehover font-audimat"
+              >
+                <p className="font-audimat text-2xl">Increase Chaos</p>
+              </Button>
+            )}
           </div>
-          <p className="font-audimat text-xl">Current Run Count: {counter}</p>
+          <Card className="grid w-1/5 mx-auto p-8 bg-ld-black">
+            <p className="font-audimat text-2xl text-white">
+              Client API Requests:
+            </p>
+            <p className="text-7xl text-white">{counter}</p>
+          </Card>
+          <div className="flex flex-row absolute top-0 left-5">
+            <QuickLinksSheet />
+            <img src="/ld-white-wide.png" className="pl-4 w-1/5" />
+          </div>
+          <MetricInfo />
         </div>
       </div>
     </div>
