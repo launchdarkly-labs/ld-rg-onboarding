@@ -22,11 +22,23 @@ export async function GET(request: NextApiRequest, response: NextApiResponse) {
         console.log("Speed is: " + (t2 - t1) + "ms")
         const speed = (t2 - t1)
         console.log(speed)
+
+        // Take the Latency values and send them to LaunchDarkly, with the user context
+
         client.track("Latency", context, null, speed)
+
+        // -------------------------------------------- //
+
         await client.flush()
         const random = Math.random();
         if (random < 0.6) {
+
+        // Take the Error rate and send it to LaunchDarkly, with the user context
+        
             client.track("Error Rate", context)
+
+        // -------------------------------------------- //
+        
             await client.flush()
             throw new Error('Random error');
         }
@@ -38,12 +50,22 @@ export async function GET(request: NextApiRequest, response: NextApiResponse) {
         console.log("Speed is: " + (t2 - t1) + "ms")
         const speed = (t2 - t1)
         console.log(speed)
+
+        // Take the Latency values and send them to LaunchDarkly, with the user context
+
         client.track("Latency", context, null, speed)
+
+        // -------------------------------------------- //
         await client.flush()
         const random = Math.random();
-        // If the random number is less than 0.2, throw an error
         if (random < 0.2) {
+
+        // Take the Error rate and send it to LaunchDarkly, with the user context
+        
             client.track("Error Rate", context)
+
+        // -------------------------------------------- //
+        
             await client.flush()
             throw new Error('Random error');
         }
