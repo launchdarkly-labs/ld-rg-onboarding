@@ -4,6 +4,7 @@ import MetricInfo from "@/components/metricinfo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useEffect, useRef, useState } from "react";
+import * as Sentry from '@sentry/nextjs'
 
 export default function Home() {
   const isRunningRef = useRef(false);
@@ -59,10 +60,15 @@ export default function Home() {
             ) : (
               <Button
                 size="lg"
-                onClick={async () => {
-                  isRunningRef.current = true;
-                  setIsRunning(true); // Add this line
-                  callApi();
+                onClick={() => {
+                  Sentry.startSpan({
+                    name: 'Onboarding Frontend Span',
+                    op: 'test'
+                  }, async () => {
+                    isRunningRef.current = true;
+                    setIsRunning(true); // Add this line
+                    callApi();
+                  });
                 }}
                 className="font-audimat bg-ldsiteblue hover:bg-ldsitehover"
               >

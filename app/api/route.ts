@@ -13,11 +13,13 @@ export async function GET(request: NextApiRequest, response: NextApiResponse) {
         "key": `Toggle+${uuidv4().slice(0, 3)}`,
         "name": 'Toggle'
     };
-    Sentry.init({
-        dsn: "https://e544313e8b41f2e6b82fbe81304c16e3@o4506797527859200.ingest.us.sentry.io/4507024706174976",
-        tracesSampleRate: 1.0,
-    });
+
+    // Set the sentry context
+
     Sentry.setContext('launchdarklyContext', context)
+
+    // -------------------------------------------- //
+
     const t1 = Date.now()
     const client = await getServerClient(process.env.LAUNCHDARKLY_SERVER_KEY!)
     const flag = await serverflag(client, 'planetApi', context, false)
