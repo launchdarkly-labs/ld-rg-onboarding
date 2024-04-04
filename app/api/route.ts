@@ -3,18 +3,24 @@ import serverflag from "@/utils/ld-server/flaggetter";
 import getServerClient from "@/utils/ld-server/serverClient";
 import { NextApiRequest, NextApiResponse } from "next"
 import { v4 as uuidv4 } from 'uuid';
+import * as Sentry from '@sentry/nextjs'
 
 
 
 export async function GET(request: NextApiRequest, response: NextApiResponse) {
     const context = {
         "kind": 'user',
-        "key": `Toggle+${uuidv4().slice(0, 3)}`,  
+        "key": `Toggle+${uuidv4().slice(0, 3)}`,
         "name": 'Toggle'
-     };
+    };
+    Sentry.init({
+        dsn: "https://e544313e8b41f2e6b82fbe81304c16e3@o4506797527859200.ingest.us.sentry.io/4507024706174976",
+        tracesSampleRate: 1.0,
+    });
+    Sentry.setContext('launchdarklyContext', context)
     const t1 = Date.now()
     const client = await getServerClient(process.env.LAUNCHDARKLY_SERVER_KEY!)
-    const flag = await serverflag(client, 'planetApi',context, false)
+    const flag = await serverflag(client, 'planetApi', context, false)
     console.log(flag)
     if (flag === true) {
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -33,17 +39,18 @@ export async function GET(request: NextApiRequest, response: NextApiResponse) {
         const random = Math.random();
         if (random < 0.6) {
 
-        // Take the Error rate and send it to LaunchDarkly, with the user context
-        
-            client.track("Error Rate", context)
+            // Take the Error rate and send it to LaunchDarkly, with the user context
 
-        // -------------------------------------------- //
-        
+            client.track("Error Rate", context)
+            Sentry.captureException("Generated Error");
+
+            // -------------------------------------------- //
+
             await client.flush()
             throw new Error('Random error');
         }
         return Response.json({ planets })
-        
+
     } else {
         await new Promise(resolve => setTimeout(resolve, Math.random() * (250 - 100) + 100));
         const t2 = Date.now()
@@ -60,12 +67,13 @@ export async function GET(request: NextApiRequest, response: NextApiResponse) {
         const random = Math.random();
         if (random < 0.2) {
 
-        // Take the Error rate and send it to LaunchDarkly, with the user context
-        
-            client.track("Error Rate", context)
+            // Take the Error rate and send it to LaunchDarkly, with the user context
 
-        // -------------------------------------------- //
-        
+            client.track("Error Rate", context)
+            Sentry.captureException("Generated Error");
+
+            // -------------------------------------------- //
+
             await client.flush()
             throw new Error('Random error');
         }
