@@ -44,7 +44,7 @@ export async function GET(request: NextApiRequest, response: NextApiResponse) {
             // Take the Error rate and send it to LaunchDarkly, with the user context
 
             client.track("Error Rate", context)
-            Sentry.captureException("Generated Error");
+            // Sentry.captureException("Generated Error");
 
             // -------------------------------------------- //
 
@@ -65,6 +65,7 @@ export async function GET(request: NextApiRequest, response: NextApiResponse) {
         client.track("Latency", context, null, speed)
 
         // -------------------------------------------- //
+        
         await client.flush()
         const random = Math.random();
         if (random < 0.2) {
@@ -72,7 +73,7 @@ export async function GET(request: NextApiRequest, response: NextApiResponse) {
             // Take the Error rate and send it to LaunchDarkly, with the user context
 
             client.track("Error Rate", context)
-            Sentry.captureException("Generated Error");
+            // Sentry.captureException("Generated Error");
 
             // -------------------------------------------- //
 
